@@ -5,7 +5,7 @@
 #pragma once
 #include "Enconn.h"
 #include "Decoderav.h"
-
+#define MAX_AUDIO_FRAME_SIZE 192000 // 1 second of 48khz 32bit audio
 // CplayerDlg ¶Ô»°¿ò
 class CplayerDlg : public CDialogEx
 {

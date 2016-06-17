@@ -3,7 +3,7 @@
 #include "stdio.h"
 #include "Enconn.h"
 #include "pkgqueue.h"
-
+#define MAX_AUDIO_FRAME_SIZE 192000 // 1 second of 48khz 32bit audio
 class Decoderav
 {
 public:

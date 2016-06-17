@@ -546,7 +546,7 @@ void CplayerDlg::OnBnClickedButton2()
 
 }
 
-#define MAX_AUDIO_FRAME_SIZE 192000 // 1 second of 48khz 32bit audio 
+ 
 
 int av_usleep(int64_t usec)
 {

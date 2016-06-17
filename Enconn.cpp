@@ -338,9 +338,9 @@ UINT Enconn::ConnectThread(LPVOID pParam)//接收线程
             //printf("nWidth=%d\n",((DataHeader*)((char*)pEnconn->m_cVideoBuffer))->biWidth);
             break;
         case MSG_AUDIODATA:							
-            (pEnconn->m_RichEdit)->SetSel(-1,-1);
-            (pEnconn->m_RichEdit)->ReplaceSel(_T("AAC Data\n"),0);
-            //printf("Recv AAC Data\n");
+            //(pEnconn->m_RichEdit)->SetSel(-1,-1);
+            //(pEnconn->m_RichEdit)->ReplaceSel(_T("AAC Data\n"),0);			
+            if(frm->ID!=0)continue;
 			if(av_new_packet(&avpkt,frm->nFrameLength) != 0){
 				break;
 			}
