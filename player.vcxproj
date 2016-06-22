@@ -135,15 +135,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\我的资料库\Documents\Visual Studio 2010\Projects\player\player\SDL2-2.0.3\include;D:\我的资料库\Documents\Visual Studio 2010\Projects\player\player\ffmpeg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\VS2010工程\player\player\ffmpeg\include;D:\VS2010工程\player\player\SDL2-2.0.3\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <OptimizeReferences>false</OptimizeReferences>
       <AdditionalDependencies>avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;SDL2.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\我的资料库\Documents\Visual Studio 2010\Projects\player\player\SDL2-2.0.3\lib\x86;D:\我的资料库\Documents\Visual Studio 2010\Projects\player\player\ffmpeg\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\VS2010工程\player\player\ffmpeg\lib;D:\VS2010工程\player\player\SDL2-2.0.3\lib\x86</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

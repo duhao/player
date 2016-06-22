@@ -13,7 +13,7 @@ public:
 	SDL_Window *pWindow;	
 	SDL_AudioSpec sdlaudio;
 	int i,videoIndex,audioIndex,gotyuv,ret;
-	int vHeight,vWidth;
+	int vWidth,vHeight;
 	AVFormatContext *pInfmctx;
 	AVCodecContext *pVCodecCtx;
 	AVCodecContext *pACodecCtx;

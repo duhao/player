@@ -274,7 +274,7 @@ UINT Enconn::ConnectThread(LPVOID pParam)//接收线程
             (pEnconn->m_RichEdit)->SetSel(-1,-1);
             (pEnconn->m_RichEdit)->ReplaceSel(_T("h264 Data\n"),0);		
             (pEnconn->m_RichEdit)->SetWindowTextW(_T("h264"));			
-            if(frm->ID==1)continue;
+            if(frm->ID!=pEnconn->iVideoIdx)continue;
 			if (frm->dwSegment==3)
 			{		
 				 
@@ -340,7 +340,7 @@ UINT Enconn::ConnectThread(LPVOID pParam)//接收线程
         case MSG_AUDIODATA:							
             //(pEnconn->m_RichEdit)->SetSel(-1,-1);
             //(pEnconn->m_RichEdit)->ReplaceSel(_T("AAC Data\n"),0);			
-            if(frm->ID!=0)continue;
+            if(frm->ID!=pEnconn->iAudioIdx)continue;
 			if(av_new_packet(&avpkt,frm->nFrameLength) != 0){
 				break;
 			}

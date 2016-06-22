@@ -62,6 +62,7 @@ END_MESSAGE_MAP()
 
 CplayerDlg::CplayerDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CplayerDlg::IDD, pParent)
+	, m_audiochan(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	//  m_RichEdit = _T("");
@@ -73,6 +74,8 @@ void CplayerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STMSG, m_msg);
 	//  DDX_Text(pDX, IDC_RICHEDIT21, m_RichEdit);
 	DDX_Control(pDX, IDC_RICHEDIT21, m_RichEdit);
+	DDX_Radio(pDX, IDC_RADIO1, m_audiochan);
+	DDV_MinMaxInt(pDX, m_audiochan, 0, 15);
 }
 
 BEGIN_MESSAGE_MAP(CplayerDlg, CDialogEx)
@@ -88,6 +91,14 @@ BEGIN_MESSAGE_MAP(CplayerDlg, CDialogEx)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON4, &CplayerDlg::OnBnClickedButton4)
 	ON_BN_CLICKED(IDC_BUTTON4, &CplayerDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_RADIO1, &CplayerDlg::OnBnClickedRadio1)	
+	ON_BN_CLICKED(IDC_RADIO6, &CplayerDlg::OnBnClickedRadio6)
+	ON_BN_CLICKED(IDC_RADIO2, &CplayerDlg::OnBnClickedRadio2)
+	ON_BN_CLICKED(IDC_RADIO7, &CplayerDlg::OnBnClickedRadio7)
+	ON_BN_CLICKED(IDC_RADIO13, &CplayerDlg::OnBnClickedRadio13)
+	ON_BN_CLICKED(IDC_RADIO14, &CplayerDlg::OnBnClickedRadio14)
+	ON_BN_CLICKED(IDC_RADIO17, &CplayerDlg::OnBnClickedRadio17)
+	ON_BN_CLICKED(IDC_RADIO12, &CplayerDlg::OnBnClickedRadio12)
 END_MESSAGE_MAP()
 
 
@@ -140,6 +151,7 @@ BOOL CplayerDlg::OnInitDialog()
 	conn->m_AudioOut=&qa;
 	conn->m_VideoOut=&qv;
 	m_Dec->SetVideoQue(&qa,&qv);	
+	m_audiochan=0;	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -1217,6 +1229,7 @@ void CplayerDlg::OnTimer(UINT_PTR nIDEvent)
 }
 
 
+
 void CplayerDlg::OnBnClickedButton4()
 {
 	char ip[36];
@@ -1233,7 +1246,10 @@ void CplayerDlg::OnBnClickedButton4()
 	conn->H264File.Open(strFilePath+".264",CFile::modeCreate | CFile::modeWrite);
 	conn->AacFile.Open(strFilePath+".aac",CFile::modeCreate | CFile::modeWrite);
 	conn->saveStream=0;
+	conn->iAudioIdx=0;
+	conn->iVideoIdx=1;
 	conn->Connect(0,ip,3100,passwd,0);	
+	m_Dec->vWidth=640;m_Dec->vHeight=360;
 	m_Dec->dispwnd=GetDlgItem(IDC_STATICVIDEO)->GetSafeHwnd();
 	m_Dec->StartDecode();
 }
@@ -1277,4 +1293,55 @@ BOOL CplayerDlg::PreTranslateMessage(MSG* pMsg)
 	}
 	
 	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+
+void CplayerDlg::OnBnClickedRadio1()//1
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+void CplayerDlg::OnBnClickedRadio2()//2
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio6()//3
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+void CplayerDlg::OnBnClickedRadio7()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+void CplayerDlg::OnBnClickedRadio13()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+void CplayerDlg::OnBnClickedRadio14()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio17()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+void CplayerDlg::OnBnClickedRadio12()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
 }

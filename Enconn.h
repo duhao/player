@@ -20,6 +20,8 @@ public:
 	void SetMessageHwnd(HWND hWnd);
 	void Enconn::SetRichHandle(CRichEditCtrl* hWnd);
 	CString filePath;
+	int iAudioIdx;
+	int iVideoIdx;
 private:
 	
 	char m_pAddr[16];
