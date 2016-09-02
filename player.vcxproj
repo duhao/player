@@ -187,6 +187,7 @@
     <None Include="res\player.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BtnST.h" />
     <ClInclude Include="Decoderav.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Enconn.h" />

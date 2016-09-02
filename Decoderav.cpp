@@ -188,7 +188,7 @@ Decoderav::Decoderav(HWND dispw)
 	m_pInputQuea=NULL;
 	m_pInputQuev=NULL;
 	pWindow=SDL_CreateWindowFrom((void *)dispw);
-
+	//SDL_SetWindowFullscreen(pWindow,0);
 }
 Decoderav::~Decoderav(void)
 {

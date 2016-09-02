@@ -99,6 +99,7 @@ BEGIN_MESSAGE_MAP(CplayerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RADIO14, &CplayerDlg::OnBnClickedRadio14)
 	ON_BN_CLICKED(IDC_RADIO17, &CplayerDlg::OnBnClickedRadio17)
 	ON_BN_CLICKED(IDC_RADIO12, &CplayerDlg::OnBnClickedRadio12)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -132,7 +133,7 @@ BOOL CplayerDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
-	GetDlgItem(IDC_IPADDRESS1)->SetWindowText(_T("192.168.7.118"));
+	GetDlgItem(IDC_IPADDRESS1)->SetWindowText(_T("192.168.7.112"));
 	//ShowWindow(SW_MINIMIZE);
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_TIMER)<0)
 	{
@@ -1247,9 +1248,9 @@ void CplayerDlg::OnBnClickedButton4()
 	conn->AacFile.Open(strFilePath+".aac",CFile::modeCreate | CFile::modeWrite);
 	conn->saveStream=0;
 	conn->iAudioIdx=0;
-	conn->iVideoIdx=1;
+	conn->iVideoIdx=0;
 	conn->Connect(0,ip,3100,passwd,0);	
-	m_Dec->vWidth=640;m_Dec->vHeight=360;
+	m_Dec->vWidth=1920;m_Dec->vHeight=1080;
 	m_Dec->dispwnd=GetDlgItem(IDC_STATICVIDEO)->GetSafeHwnd();
 	m_Dec->StartDecode();
 }
@@ -1344,4 +1345,31 @@ void CplayerDlg::OnBnClickedRadio12()
 {
 	UpdateData(TRUE);
 	conn->iAudioIdx=m_audiochan;
+}
+
+
+HBRUSH CplayerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+	
+	switch(pWnd->GetDlgCtrlID())
+	{
+	case IDC_STATICVIDEO:
+		{
+			//pDC->SetBkMode(TRANSPARENT); 
+			//设置背景为透明
+			pDC-> SetBkColor(RGB(0,0,0)); //你可以修改背景颜色
+			//pDC->SetTextColor(RGB(255,255,0)); 
+			//设置字体颜色
+			//pWnd->SetFont(cFont); //设置字体
+			HBRUSH B = CreateSolidBrush(RGB(0,0,0)); //创建画刷
+			return (HBRUSH) B; //返回画刷句柄
+
+		}
+	default:return hbr;
+	}
+	
+		
+	
+	
 }
