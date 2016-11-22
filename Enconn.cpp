@@ -272,8 +272,8 @@ UINT Enconn::ConnectThread(LPVOID pParam)//接收线程
             break;
         case MSG_SCREENDATA:	
             (pEnconn->m_RichEdit)->SetSel(-1,-1);
-            (pEnconn->m_RichEdit)->ReplaceSel(_T("h264 Data\n"),0);		
-            (pEnconn->m_RichEdit)->SetWindowTextW(_T("h264"));			
+            (pEnconn->m_RichEdit)->ReplaceSel(_T("\n"),0);		
+            (pEnconn->m_RichEdit)->SetWindowTextW(_T("h264"));				
             if(frm->ID!=pEnconn->iVideoIdx)continue;
 			if (frm->dwSegment==3)
 			{		
@@ -286,7 +286,7 @@ UINT Enconn::ConnectThread(LPVOID pParam)//接收线程
 				packet_queue_put(pEnconn->m_VideoOut,&avpkt);
 										
 				avpkt.data=NULL;
-				pos=0;
+				pos=0;				
 			}else if (frm->dwSegment==2)
 			{								
 				if(av_new_packet(&avpkt,frm->nFrameLength) != 0){
@@ -313,13 +313,13 @@ UINT Enconn::ConnectThread(LPVOID pParam)//接收线程
 				}
 				memcpy(avpkt.data+pos,pEnconn->m_cVideoBuffer+sizeof(FRAMEHEAD),nDataLen-sizeof(FRAMEHEAD));
 				//fwrite(pEnconn->m_cVideoBuffer+sizeof(FRAMEHEAD),1,nDataLen-sizeof(FRAMEHEAD),fp);
-				packet_queue_put(pEnconn->m_VideoOut,&avpkt);	
+				packet_queue_put(pEnconn->m_VideoOut,&avpkt);
 				 
 				
 				avpkt.data=NULL;
 				pos=0;
-			}
-         
+			}			
+        
             if(pEnconn->saveStream==1 || pEnconn->saveStream==2)
             {	//if(AVIIF_KEYFRAME==frm->dwFlags || pEnconn->saveStream==2)
                 {
