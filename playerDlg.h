@@ -60,4 +60,13 @@ public:
 	afx_msg void OnBnClickedRadio17();
 	afx_msg void OnBnClickedRadio12();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg void OnBnClickedRadio18();
+	afx_msg void OnBnClickedRadio25();
+	afx_msg void OnBnClickedRadio19();
+	afx_msg void OnBnClickedRadio20();
+	afx_msg void OnBnClickedRadio21();
+	afx_msg void OnBnClickedRadio22();
+	afx_msg void OnBnClickedRadio23();
+	afx_msg void OnBnClickedRadio24();
+	afx_msg void OnBnClickedButton5();
 };

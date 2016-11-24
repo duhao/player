@@ -6,11 +6,11 @@ DWORD WINAPI ThreadVideo(LPVOID lpParameter){
 	AVPacket pkt = { 0 };
 	AVFrame *frm;
 	SDL_Rect sdlRT;SDL_Rect dstRT;
-	INT serial,gotyuv,ret,vWidth,vHeight;
-	vWidth=dav->vWidth;
-	vHeight=dav->vHeight;
+	SDL_Renderer * pRender = 0;
+	SDL_Texture * pTexture = 0;
+	INT serial,gotyuv,ret,vWidth,vHeight,iNitRender=0;	;
 	unsigned char* szData;
-	int iPitch = vWidth*SDL_BYTESPERPIXEL(SDL_PIXELFORMAT_IYUV); 
+	int iPitch; 
 	dav->pVCodec=avcodec_find_decoder(AV_CODEC_ID_H264);
 	if(!dav->pACodec){
 		TRACE("h264decode not founc\n");
@@ -27,15 +27,7 @@ DWORD WINAPI ThreadVideo(LPVOID lpParameter){
 	{
 		TRACE("avcodec_open2 fail!\n");
 	}
-	dav->pWindow=SDL_CreateWindowFrom((void *)dav->dispwnd);
-	SDL_Renderer * pRender = SDL_CreateRenderer( dav->pWindow, 0, SDL_RENDERER_ACCELERATED );
-	SDL_Texture * pTexture = SDL_CreateTexture( pRender,SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING, vWidth, vHeight);
-	szData=(unsigned char*)av_malloc(vWidth*vHeight*2);
-	SDL_GetWindowSize(dav->pWindow, &dstRT.w, &dstRT.h);
-	sdlRT.w = vWidth;
-	sdlRT.h = vHeight;	
-	dstRT.x=sdlRT.x = 0;
-	dstRT.y=sdlRT.y = 0;
+	szData=(unsigned char*)av_malloc(1920*1088*2);
 
 	while(1)
 	{
@@ -44,7 +36,7 @@ DWORD WINAPI ThreadVideo(LPVOID lpParameter){
 		{
 			return -1;
 		}
-		//if(pkt.data)TRACE("pkt.%d %d %d %d %d %d %d %d\n",pkt.data[0],pkt.data[1],pkt.data[2],pkt.data[3],pkt.data[4],pkt.data[5],pkt.data[6],pkt.data[7]);
+		//if(pkt.data)TRACE("pkt.%X %X %X %X %X %X %X %X\n",pkt.data[0],pkt.data[1],pkt.data[2],pkt.data[3],pkt.data[4],pkt.data[5],pkt.data[6],pkt.data[7]);
 
 		ret=avcodec_decode_video2(dav->pVCodecCtx,frm,&gotyuv,&pkt);
 		if (ret<0)
@@ -52,8 +44,22 @@ DWORD WINAPI ThreadVideo(LPVOID lpParameter){
 			//TRACE("decode frame error!\n");
 		}
 		if(gotyuv){
-			//TRACE("gotyuv!\n");
-		
+			TRACE("gotyuv! %d\n",frm->width);
+			if (!iNitRender)
+			{
+				iNitRender=1;
+				dav->vWidth=vWidth=frm->width;
+				dav->vHeight=vHeight=frm->height;
+				dav->pWindow=SDL_CreateWindowFrom((void *)dav->dispwnd);
+				iPitch = frm->width*SDL_BYTESPERPIXEL(SDL_PIXELFORMAT_IYUV); 
+				pRender = SDL_CreateRenderer( dav->pWindow, 0, SDL_RENDERER_ACCELERATED );
+				pTexture = SDL_CreateTexture( pRender,SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING, vWidth, vHeight);				
+				SDL_GetWindowSize(dav->pWindow, &dstRT.w, &dstRT.h);
+				sdlRT.w = vWidth;
+				sdlRT.h = vHeight;	
+				dstRT.x=sdlRT.x = 0;
+				dstRT.y=sdlRT.y = 0;
+			}
 			memcpy(szData,frm->data[0],frm->width*frm->height);
 			memcpy(szData+frm->width*frm->height,frm->data[1],frm->width*frm->height/4);
 			memcpy(szData+frm->width*frm->height+frm->width*frm->height/4,frm->data[2],frm->width*frm->height/4);
@@ -62,8 +68,6 @@ DWORD WINAPI ThreadVideo(LPVOID lpParameter){
 			SDL_RenderCopy( pRender, pTexture, &sdlRT, &dstRT );
 			SDL_RenderPresent( pRender );
 		}
-
-
 		av_free_packet(&pkt);
 	}
 	return 0;

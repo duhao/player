@@ -100,6 +100,15 @@ BEGIN_MESSAGE_MAP(CplayerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RADIO17, &CplayerDlg::OnBnClickedRadio17)
 	ON_BN_CLICKED(IDC_RADIO12, &CplayerDlg::OnBnClickedRadio12)
 	ON_WM_CTLCOLOR()
+	ON_BN_CLICKED(IDC_RADIO18, &CplayerDlg::OnBnClickedRadio18)
+	ON_BN_CLICKED(IDC_RADIO25, &CplayerDlg::OnBnClickedRadio25)
+	ON_BN_CLICKED(IDC_RADIO19, &CplayerDlg::OnBnClickedRadio19)
+	ON_BN_CLICKED(IDC_RADIO20, &CplayerDlg::OnBnClickedRadio20)
+	ON_BN_CLICKED(IDC_RADIO21, &CplayerDlg::OnBnClickedRadio21)
+	ON_BN_CLICKED(IDC_RADIO22, &CplayerDlg::OnBnClickedRadio22)
+	ON_BN_CLICKED(IDC_RADIO23, &CplayerDlg::OnBnClickedRadio23)
+	ON_BN_CLICKED(IDC_RADIO24, &CplayerDlg::OnBnClickedRadio24)
+	ON_BN_CLICKED(IDC_BUTTON5, &CplayerDlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -1008,7 +1017,7 @@ int MyThreadRead(LPVOID lpParameter)
 	AVCodec *pACodec=NULL;
 	AVCodec *pVCodec=NULL;
 	AVFrame *pFrame,*pFrameYUV;
-	int i,videoIndex=-1,audioIndex=-1,gotyuv,ret,j;
+	int i,videoIndex=-1,audioIndex=-1,gotyuv,ret,j,startplay=0;
 
 	fptmp=fopen("test.pcm","wb");
 	CoInitialize(NULL);//没有这句，SDL_Audioopen会失败
@@ -1121,6 +1130,21 @@ int MyThreadRead(LPVOID lpParameter)
 	SDL_PauseAudio(0);
 	
 	while(av_read_frame(is->ic, pkt)>=0){
+	
+		
+		if (pkt->stream_index == is->iAudioStreamIndex[0] && !startplay) {
+			//TRACE("pkt->dts=%0.3Ff\n",pkt->dts*av_q2d(is->audio_st->time_base));
+			if (pkt->dts*av_q2d(is->audio_st->time_base) < 75.0*60)//s
+			{
+				
+				startplay=0;
+			}else
+			{
+				startplay=1;
+			
+			}
+		}
+		if(!startplay){av_free_packet(pkt);continue;}
 		av_usleep(3000);
 		if (pkt->stream_index == is->iAudioStreamIndex[0]) {
 			packet_queue_put(&is->audioq, pkt);
@@ -1250,13 +1274,13 @@ void CplayerDlg::OnBnClickedButton4()
 	conn->iAudioIdx=0;
 	conn->iVideoIdx=0;
 	conn->Connect(0,ip,3100,passwd,0);	
-	m_Dec->vWidth=1920;m_Dec->vHeight=1080;
 	m_Dec->dispwnd=GetDlgItem(IDC_STATICVIDEO)->GetSafeHwnd();
 	m_Dec->StartDecode();
 }
 
 BOOL CplayerDlg::PreTranslateMessage(MSG* pMsg)
 {
+	CString str;
 	switch(pMsg->message) {
 	case RM_ST_FAIL:	//连接失败		
 		GetDlgItem(IDC_STATIC1)->SetWindowTextW(_T("未连接"));
@@ -1288,6 +1312,13 @@ BOOL CplayerDlg::PreTranslateMessage(MSG* pMsg)
 	case RM_UPDATE_STATUS://升级状态				
 		//m_Progress.SetPos(pMsg->lParam);	
 
+		break;
+	case UM_FIXFINSH://文件解析				
+		::AfxMessageBox(_T("ok"));	
+		break;
+	case UM_FIXPROGESS:	
+		str.Format(_T("%d"),pMsg->lParam);
+		GetDlgItem(IDC_STATIC1)->SetWindowText(str);
 		break;
 	default:
 		break;
@@ -1373,3 +1404,235 @@ HBRUSH CplayerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	
 	
 }
+
+
+void CplayerDlg::OnBnClickedRadio18()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio25()
+{
+		UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio19()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio20()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio21()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio22()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio23()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+
+void CplayerDlg::OnBnClickedRadio24()
+{
+	UpdateData(TRUE);
+	conn->iAudioIdx=m_audiochan;
+}
+
+DWORD WINAPI PrintVidoPts(LPVOID lpParameter){
+		//mp4修复时间戳 使其同步。
+	int retw;
+	int i;
+	size_t sz=0;
+	AVFormatContext *ic=NULL;
+	AVPacket packet = {0,0};
+	char filepath[2048];
+	char logmem[2048];
+	int ret=0,vidoframenum=0,audioframemum=0,min=0;
+	int dts=0;
+	int s;
+	double lastaudio=0,lastvideo=0,videopts=0,videodts=0;
+	FILE *fp,*fpv,*fplog;
+	CplayerDlg *dlg=(CplayerDlg *)lpParameter;
+	CString LogFileName=_T("timestamp.txt");
+	fp=fopen("test.aac","wb+");
+	fpv=fopen("test.264","wb+");	
+	CFile logfile;
+	unsigned char adts_header[7] = {0};
+	unsigned char audioObjectType,samplingFrequencyIndex,channelConfiguration;
+	TCHAR szFilter[] = _T("视频(*.mp4)|*.mp4|"); 
+	CFileDialog fileDlg(TRUE, _T("MP4"), NULL, 0, szFilter, 0); 
+	CString strFilePath;
+	dlg->SendMessage(1024,0);
+	
+	if (IDOK==fileDlg.DoModal())
+	{
+		strFilePath = fileDlg.GetPathName();		
+		CStringA strTempA(strFilePath);
+		const char *chartemp = (LPCSTR)strTempA;
+		memcpy(filepath,chartemp,strTempA.GetLength()+1);
+		//wcstombs_s(&sz,filepath,strFilePath.GetBuffer(0),strFilePath.GetLength());
+	}
+	else
+	{
+
+		return -1;
+	}
+	TRACE("Open file %s",filepath);
+	
+	logfile.Open(LogFileName,CFile::modeCreate|CFile::modeWrite|CFile::shareDenyNone);
+	logfile.SeekToBegin();
+	logfile.Write(filepath,strlen(filepath));
+	
+	//if (!file.Open("log.txt",
+		//CFile::modeRead | 
+		//CFile::shareDenyWrite))
+	//{
+		//TRACE(_T("Load (file): Error opening file %s\n"),"log.txt");
+		//return FALSE;
+	//};
+	//objtype 0 null ||   1--AAC MAIN ||2 AAC LC ||3 AAC SSR||4 AAC LTP||5 SBR||6 AAC Scalable ||7 TwinVQ...
+	//0--9600Hz||1--88200Hz||2--64000Hz||3--4800Hz||4--44100Hz||5--32000Hz||6--24000Hz||7--22050Hz||8--16000Hz||9--12000Hz||10--11025Hz||11--8000Hz||
+	//avcodec_register_all();
+	//avdevice_register_all();
+
+   // avfilter_register_all();
+	
+	avformat_open_input(&ic, filepath, NULL,NULL);
+	ret=avformat_find_stream_info(ic,NULL);
+	sprintf(logmem,"\n");
+	logfile.Write(logmem,strlen(logmem));
+	for(i=0;i<ic->nb_streams;i++)
+	{
+		sprintf(logmem,"ic->streams[%d]->codec->codec_id=%d\n",i,ic->streams[i]->codec->codec_id);
+		logfile.Write(logmem,strlen(logmem));
+		TRACE("packet.stream_index=%d\n",ic->streams[i]->codec->codec_id);
+	}
+	AVBitStreamFilterContext* h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb");
+	while(1)
+		{
+		//Sleep(1);
+	av_init_packet(&packet);	
+	ret=av_read_frame(ic,&packet);
+	//TRACE("packet.stream_index============%d\n",packet.stream_index);
+	//usleep(400000);
+	
+	if((packet.stream_index==0)&& packet.size>0){ // first audio 
+		//av_bitstream_filter_filter(h264bsfc, ic->streams[0]->codec, NULL, &packet.data, &packet.size, packet.data, packet.size, 0);
+		audioObjectType=(ic->streams[1]->codec->extradata[0]& 0xF8) >> 3;
+		samplingFrequencyIndex=((ic->streams[1]->codec->extradata[0]& 0x7) << 1) | (ic->streams[1]->codec->extradata[1]>> 7);
+		channelConfiguration=(ic->streams[1]->codec->extradata[1] >> 3) & 0x0F;	
+		//printf("asc=%d,%d,%d\n",audioObjectType,samplingFrequencyIndex,channelConfiguration);
+		adts_header[0] = (unsigned char)0xFF;
+		adts_header[1] = (unsigned char)0xF1;
+	//FX，X应该要根据profile来生成//////
+	/* packet[2] = (unsigned char)(((profile)<<6) + (freqIdx<<2) +(chanCfg>>2));
+	packet[3] = (unsigned char)(((chanCfg&3)<<6) + (packetLen>>11));
+	0: 96000 Hz||1: 88200 Hz||2: 64000 Hz||3: 48000 Hz||4: 44100 Hz||5: 32000 Hz||6: 24000 Hz||7: 22050 Hz||8: 16000 Hz||9: 12000 Hz
+	10: 11025 Hz||11: 8000 Hz||12: 7350 Hz||13: Reserved||14: Reserved||15: frequency is written explictly
+	0:main profile 1:LC 2:SSR 3 reserved
+	*/
+		adts_header[2] = (unsigned char)(((audioObjectType-1)<<6) + (samplingFrequencyIndex<<2) +(channelConfiguration>>2));
+		adts_header[3] = (unsigned char)(((channelConfiguration&3)<<6) + (packet.size+7>>11));
+		adts_header[4] = (unsigned char)((packet.size+7&0x7FF) >> 3);
+		adts_header[5] = (unsigned char)(((packet.size+7&7)<<5) + 0x1F);
+		adts_header[6] = (unsigned char)0xFC;
+		//fwrite(adts_header,1,7,fp);
+		//retw=fwrite(packet.data,1,packet.size,fp);		
+		if(packet.pts*av_q2d(ic->streams[packet.stream_index]->time_base)-lastaudio>0.1)
+		{
+			//sprintf(logmem,"%f First Audio pts= %f\n",lastaudio,packet.pts*av_q2d(ic->streams[packet.stream_index]->time_base));
+			//logfile.Write(logmem,strlen(logmem));
+
+		}
+		lastaudio=packet.pts*av_q2d(ic->streams[packet.stream_index]->time_base);
+		sprintf(logmem,"         First Track[%d]  Audio pts = %0.3f [FPS:%0.1f(s)][audiodurationdiff:%0.3f(s)] diff[V-A]=%0.3f(s)\n",packet.stream_index,lastaudio,audioframemum/lastaudio,lastaudio-(audioframemum*1024.0)/16000,lastvideo-lastaudio);
+		logfile.Write(logmem,strlen(logmem));
+		TRACE("Audio pts============%f\n",packet.pts*av_q2d(ic->streams[packet.stream_index]->time_base));
+		if(lastvideo-lastaudio>0.15)
+		{
+			min=lastaudio/60;
+			//sprintf(logmem,"too  %d:%d m diff[V-A]=%0.3f(s)\n",min/60,min%60,lastvideo-lastaudio);
+			//logfile.Write(logmem,strlen(logmem));
+
+		}
+		//TRACE("Aret============%d\n",packet.pts);
+		if(packet.stream_index==0)audioframemum++;
+	}
+	else if(packet.stream_index==ic->nb_streams-1 && packet.size>0)//video
+		{
+			av_bitstream_filter_filter(h264bsfc, ic->streams[1]->codec, NULL, &packet.data, &packet.size, packet.data, packet.size, 0);
+			s=packet.size;
+			//fwrite(&s,1,4,fpv);
+			//fwrite(packet.data,1,packet.size,fpv);
+			TRACE("Video dts ret=%f\n",packet.dts*av_q2d(ic->streams[packet.stream_index]->time_base));
+			if(packet.dts*av_q2d(ic->streams[packet.stream_index]->time_base)-videodts <0.015){
+				//sprintf(logmem,"%f,Video dts= %f\n",videodts,packet.dts*av_q2d(ic->streams[packet.stream_index]->time_base));
+				//logfile.Write(logmem,strlen(logmem));
+			}
+			videodts=packet.dts*av_q2d(ic->streams[packet.stream_index]->time_base);
+			videopts=packet.pts*av_q2d(ic->streams[packet.stream_index]->time_base);
+			if (videodts-lastvideo > 0.200)
+			{
+				min=videodts/60;
+				sprintf(logmem,"[too long %d:%dm]Video dts= %0.3f(s) pts=%0.3f [FPS:%0.1f] delay=%0.3f\n",min/60,min%60,videodts,videopts,vidoframenum/videodts,videodts-lastvideo);
+			}else
+			{
+				sprintf(logmem,"Video dts= %0.3f(s) pts=%0.3f [FPS:%0.1f][videodurationdiff:%0.3f(s)(%0.3f)]\n",videodts,videopts,vidoframenum/videodts,videodts-vidoframenum/30.0,videodts-vidoframenum/25.0);
+			}			
+			logfile.Write(logmem,strlen(logmem));
+			lastvideo=videodts;
+			//TRACE("Aret%d\n",packet.pts);
+			vidoframenum++;
+			if (!(vidoframenum%1000))
+			{
+				::PostMessage(dlg->m_hWnd,UM_FIXPROGESS,0,vidoframenum);
+			}
+			
+		}
+	//dts++;
+	if(ret<0)break;
+	//if(dts>20){return 0;}
+	av_free_packet(&packet);
+	}
+	sprintf(logmem,"audioframenum=%d,videoframenum= %d,audioplaytime=%d,videoplaytime=%d(%d)\n",audioframemum,vidoframenum,(audioframemum*1024)/16000,vidoframenum/30,vidoframenum/25);
+	logfile.Write(logmem,strlen(logmem));
+	av_dump_format(ic,1,0,0);
+	avformat_close_input(&ic);
+	av_bitstream_filter_close(h264bsfc); 
+	fclose(fp);
+	fclose(fpv);
+	logfile.Flush();
+	logfile.Close();
+	::PostMessage(dlg->m_hWnd,UM_FIXPROGESS,0,vidoframenum);
+	::PostMessage(dlg->m_hWnd,UM_FIXFINSH,0,0);
+}
+void CplayerDlg::OnBnClickedButton5()
+{
+	HANDLE VideoHnd;
+	VideoHnd=CreateThread(NULL,0,PrintVidoPts,(LPVOID)this,0,NULL);
+}
+
+

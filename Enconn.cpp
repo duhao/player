@@ -274,7 +274,7 @@ UINT Enconn::ConnectThread(LPVOID pParam)//接收线程
             (pEnconn->m_RichEdit)->SetSel(-1,-1);
             (pEnconn->m_RichEdit)->ReplaceSel(_T("\n"),0);		
             (pEnconn->m_RichEdit)->SetWindowTextW(_T("h264"));				
-            if(frm->ID!=pEnconn->iVideoIdx)continue;
+            if(frm->ID!=pEnconn->iVideoIdx)continue;			
 			if (frm->dwSegment==3)
 			{		
 				 
